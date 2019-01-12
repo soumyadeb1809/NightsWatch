@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.MainActivity">
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorDarkerBlue"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true">
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/nightswatch_trans"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/img_nights_watch_logo"
+                    />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/grp_name_label"
+                    android:orientation="horizontal"
+                    android:layout_below="@+id/img_nights_watch_logo"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_horizontal|bottom">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="N"
+                        android:textSize="34sp"
+                        android:fontFamily="@font/bitter_regular"
+                        android:textColor="@color/colorWhite"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="IGHT'S"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/bitter_regular"
+                        android:textColor="@color/colorWhite"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" W"
+                        android:textSize="34sp"
+                        android:fontFamily="@font/bitter_regular"
+                        android:textColor="@color/colorWhite"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ATCH"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/bitter_regular"
+                        android:textColor="@color/colorWhite"
+                        />
+
+
+
+                </LinearLayout>
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/txt_status"
+                android:text="Reading text messages from sender"
+                android:textColor="@color/colorWhite"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/et_sender_phone"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/txt_status"
+                android:layout_marginStart="60dp"
+                android:layout_marginTop="16dp"
+                android:inputType="phone"
+                android:textSize="28sp"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                android:layout_marginEnd="60dp"
+                android:gravity="center"
+                android:maxLength="15"
+                android:background="@drawable/back_et_dark_rounded"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="60dp"
+                android:layout_marginEnd="60dp"
+                android:layout_below="@+id/et_sender_phone"
+                android:layout_marginTop="40dp"
+                android:id="@+id/grp_action"
+                android:clickable="true"
+                android:background="@color/colorBlue"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tv_action_text"
+                    android:text="Start Reading"
+                    android:textColor="@color/colorWhite"
+                    />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
