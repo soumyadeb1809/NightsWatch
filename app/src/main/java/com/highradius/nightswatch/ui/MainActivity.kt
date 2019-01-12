@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -66,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 
         var preferencesEditor: SharedPreferences.Editor = preferences.edit()
 
-        btnAction.setOnClickListener {
+        btnAction.setOnClickListener { v: View ->
             if(!isReadingSms) {
                 var senderPhone = etSenderPhone.text.toString()
                 if (TextUtils.isEmpty(senderPhone) || null == senderPhone) {
@@ -79,6 +81,8 @@ class MainActivity : AppCompatActivity() {
                     AppConstants.SMS.SENDER_PHONE = senderPhone
                     isReadingSms = true
                     reloadStatus()
+                    Snackbar.make(v, "Crows have started their watch", Snackbar.LENGTH_SHORT).show()
+
                 }
             } else {
                 preferencesEditor.putString("sender_phone", AppConstants.SMS.PHONE_EMPTY)
@@ -86,6 +90,7 @@ class MainActivity : AppCompatActivity() {
                 AppConstants.SMS.SENDER_PHONE = AppConstants.SMS.PHONE_EMPTY
                 isReadingSms = false
                 reloadStatus()
+                Snackbar.make(v, "Crows watch has ended", Snackbar.LENGTH_SHORT).show()
             }
 
             Log.i("SMSL", "Main -> Pref -> Sender Phone: " + preferences.getString("sender_phone", AppConstants.SMS.PHONE_EMPTY))
