@@ -7,4 +7,9 @@ object AppConstants {
         val PHONE_EMPTY = ""
     }
 
+    object SP {
+        val TAG_REGEX_PATTERN = "regex_pattern"
+        val TAG_CAN_DETECT_ANY_NUM = "can_detect_any_num"
+    }
+
 }

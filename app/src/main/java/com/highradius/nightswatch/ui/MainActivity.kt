@@ -5,16 +5,15 @@ import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 
 import com.highradius.nightswatch.R
 import com.highradius.nightswatch.constants.AppConstants
+import com.highradius.nightswatch.utils.Utility
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,14 +21,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvStatus: TextView
     private lateinit var btnAction: LinearLayout
     private lateinit var tvBtnActionText: TextView
+    private lateinit var imgRegexConfig: ImageView
+
+    private lateinit var regexConfigAlert: AlertDialog
 
     private var isReadingSms = false
 
     private lateinit var preferences: SharedPreferences
+    private lateinit var preferencesEditor: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        preferences = getSharedPreferences("sender_data", Context.MODE_PRIVATE)
+        preferencesEditor = preferences.edit()
 
         initViews()
         setOnClickListeners()
@@ -40,13 +46,47 @@ class MainActivity : AppCompatActivity() {
         tvStatus = findViewById(R.id.txt_status)
         btnAction = findViewById(R.id.grp_action)
         tvBtnActionText = findViewById(R.id.tv_action_text)
+        imgRegexConfig = findViewById(R.id.img_regex_config)
 
-        preferences = getSharedPreferences("sender_data", Context.MODE_PRIVATE)
+        var alertBuilder = AlertDialog.Builder(this@MainActivity)
+        var alertView: View = layoutInflater.inflate(R.layout.alert_regex_config, null)
+
+        var etRegexPattern: EditText = alertView.findViewById(R.id.et_regex_config)
+        var cbDetectAnyNum: CheckBox = alertView.findViewById(R.id.cb_detect_any_num)
+        var btnSaveConfig: LinearLayout = alertView.findViewById(R.id.grp_save_config)
+        var btnCancel: LinearLayout = alertView.findViewById(R.id.grp_cancel)
+
+        var canDetectAnyNum: Boolean = preferences.getBoolean(AppConstants.SP.TAG_CAN_DETECT_ANY_NUM, true)
+        cbDetectAnyNum.isChecked = canDetectAnyNum
+
+        var regexConfig: String? = preferences.getString(AppConstants.SP.TAG_REGEX_PATTERN, "")
+        etRegexPattern.setText(regexConfig)
+
+        btnCancel.setOnClickListener { v: View ->
+            regexConfigAlert.dismiss()
+        }
+
+        btnSaveConfig.setOnClickListener { v: View ->
+            var regexPattern: String = etRegexPattern.text.toString()
+            var canDetectAnyNum = cbDetectAnyNum.isChecked
+            updateRegexConfig(regexPattern, canDetectAnyNum)
+            regexConfigAlert.dismiss()
+        }
+
+        alertBuilder.setTitle("Regex Configuration")
+        alertBuilder.setView(alertView)
+        regexConfigAlert = alertBuilder.create()
 
         isReadingSms = preferences.getString("sender_phone", AppConstants.SMS.PHONE_EMPTY) != AppConstants.SMS.PHONE_EMPTY
 
         reloadStatus()
 
+    }
+
+    private fun updateRegexConfig(regexPattern: String, canDetectAnyNum: Boolean) {
+        preferencesEditor.putString(AppConstants.SP.TAG_REGEX_PATTERN, regexPattern)
+        preferencesEditor.putBoolean(AppConstants.SP.TAG_CAN_DETECT_ANY_NUM, canDetectAnyNum)
+        preferencesEditor.commit()
     }
 
     private fun reloadStatus() {
@@ -58,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             etSenderPhone.isEnabled = false
             btnAction.setBackgroundResource(R.drawable.back_orange_accent_rounded)
-            tvBtnActionText.setText("Stop Reading");
+            tvBtnActionText.setText("Stop Reading")
             tvStatus.setText("Reading and replying OTPs for sender")
             etSenderPhone.setText(preferences.getString("sender_phone", AppConstants.SMS.PHONE_EMPTY))
         }
@@ -66,35 +106,43 @@ class MainActivity : AppCompatActivity() {
 
     private fun setOnClickListeners() {
 
-        var preferencesEditor: SharedPreferences.Editor = preferences.edit()
-
         btnAction.setOnClickListener { v: View ->
-            if(!isReadingSms) {
-                var senderPhone = etSenderPhone.text.toString()
-                if (TextUtils.isEmpty(senderPhone) || null == senderPhone) {
-                    Toast.makeText(this@MainActivity, "Please enter sender's phone number", Toast.LENGTH_SHORT).show()
-                } else if (senderPhone.length < 10) {
-                    Toast.makeText(this@MainActivity, "Please enter valid phone number", Toast.LENGTH_SHORT).show()
-                } else {
-                    preferencesEditor.putString("sender_phone", senderPhone)
-                    preferencesEditor.commit()
-                    AppConstants.SMS.SENDER_PHONE = senderPhone
-                    isReadingSms = true
-                    reloadStatus()
-                    Snackbar.make(v, "Crows have started their watch", Snackbar.LENGTH_SHORT).show()
+            if(Utility.isPermissionsGranted(this@MainActivity)) {
+                if (!isReadingSms) {
+                    var senderPhone = etSenderPhone.text.toString()
+                    if (TextUtils.isEmpty(senderPhone) || null == senderPhone) {
+                        Toast.makeText(this@MainActivity, "Please enter sender's phone number", Toast.LENGTH_SHORT).show()
+                    } else if (senderPhone.length < 10) {
+                        Toast.makeText(this@MainActivity, "Please enter valid phone number", Toast.LENGTH_SHORT).show()
+                    } else {
+                        preferencesEditor.putString("sender_phone", senderPhone)
+                        preferencesEditor.commit()
+                        AppConstants.SMS.SENDER_PHONE = senderPhone
+                        isReadingSms = true
+                        reloadStatus()
+                        Snackbar.make(v, "Crows have started their watch", Snackbar.LENGTH_SHORT).show()
 
+                    }
+                } else {
+                    preferencesEditor.putString("sender_phone", AppConstants.SMS.PHONE_EMPTY)
+                    preferencesEditor.commit()
+                    AppConstants.SMS.SENDER_PHONE = AppConstants.SMS.PHONE_EMPTY
+                    isReadingSms = false
+                    reloadStatus()
+                    Snackbar.make(v, "Crows watch has ended", Snackbar.LENGTH_SHORT).show()
                 }
-            } else {
-                preferencesEditor.putString("sender_phone", AppConstants.SMS.PHONE_EMPTY)
-                preferencesEditor.commit()
-                AppConstants.SMS.SENDER_PHONE = AppConstants.SMS.PHONE_EMPTY
-                isReadingSms = false
-                reloadStatus()
-                Snackbar.make(v, "Crows watch has ended", Snackbar.LENGTH_SHORT).show()
+            }
+            else {
+                Utility.askForPermissions(this@MainActivity)
             }
 
             Log.i("SMSL", "Main -> Pref -> Sender Phone: " + preferences.getString("sender_phone", AppConstants.SMS.PHONE_EMPTY))
         }
 
+        imgRegexConfig.setOnClickListener { v: View ->
+            regexConfigAlert.show()
+        }
+
     }
+
 }

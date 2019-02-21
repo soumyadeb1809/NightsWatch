@@ -40,13 +40,20 @@ public class SmsListener extends BroadcastReceiver {
 
                         String savedSenderPhone = preferences.getString("sender_phone", AppConstants.SMS.INSTANCE.getPHONE_EMPTY());
 
+                        String regexPattern = preferences.getString(AppConstants.SP.INSTANCE.getTAG_REGEX_PATTERN(), ":");
+                        regexPattern = regexPattern.trim();
+                        if(regexPattern.equals("")){
+                            regexPattern = " ";
+                        }
+                        Boolean canDetectAnyNum = preferences.getBoolean(AppConstants.SP.INSTANCE.getTAG_CAN_DETECT_ANY_NUM(), true);
+
                         Log.i("SMSL", "Saved Sender Phone: "+savedSenderPhone);
 
                         if(senderPhone.equals(savedSenderPhone)) {
 
-                            String[] msgArray = msgBody.split(":");
+                            String[] msgArray = msgBody.split(regexPattern);
 
-                            if(msgArray.length == 2){
+                            if(msgArray.length >= 2){
                                 String otp = "";
                                 for (char c : msgArray[1].trim().toCharArray()){
                                     if(c == ' '){
@@ -61,12 +68,37 @@ public class SmsListener extends BroadcastReceiver {
                                 SmsUtils.INSTANCE.sendSMS(context, senderPhone, otp.trim());
                             }
                             else {
-                                SmsUtils.INSTANCE.sendSMS(context, senderPhone, msgBody);
+                                if(canDetectAnyNum) {
+
+                                    String[] txtMessageWords = msgBody.split(" ");
+
+                                    for(int j = 0; j < txtMessageWords.length ; j++){
+
+                                        String currentWord = txtMessageWords[j].trim();
+
+                                        try{
+                                            Integer.parseInt(currentWord);
+                                            SmsUtils.INSTANCE.sendSMS(context, senderPhone, currentWord);
+                                            break;
+                                        }
+                                        catch (Exception e){
+                                            e.printStackTrace();
+                                            continue;
+                                        }
+
+                                    }
+
+
+                                }
+                                else {
+                                    Log.i("SMSL", "No valid OTP found in text message: " + msgBody);
+                                    Toast.makeText(context, "No valid OTP found in text message", Toast.LENGTH_LONG).show();
+                                }
                             }
                         }
                     }
                 }catch(Exception e){
-//                            Log.d("Exception caught",e.getMessage());
+                            Log.d("SMSL",e.getMessage());
                 }
             }
         }
