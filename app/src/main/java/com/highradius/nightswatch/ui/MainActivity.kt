@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                     var senderPhone = etSenderPhone.text.toString()
                     if (TextUtils.isEmpty(senderPhone) || null == senderPhone) {
                         Toast.makeText(this@MainActivity, "Please enter sender's phone number", Toast.LENGTH_SHORT).show()
-                    } else if (senderPhone.length < 10) {
+                    } else if (senderPhone.length < 1) {
                         Toast.makeText(this@MainActivity, "Please enter valid phone number", Toast.LENGTH_SHORT).show()
                     } else {
                         preferencesEditor.putString("sender_phone", senderPhone)
