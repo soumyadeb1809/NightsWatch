@@ -1,7 +1,9 @@
 package com.highradius.nightswatch.ui
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnAction: LinearLayout
     private lateinit var tvBtnActionText: TextView
     private lateinit var imgRegexConfig: ImageView
+    private lateinit var imgEmailLogs: ImageView
 
     private lateinit var regexConfigAlert: AlertDialog
 
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         btnAction = findViewById(R.id.grp_action)
         tvBtnActionText = findViewById(R.id.tv_action_text)
         imgRegexConfig = findViewById(R.id.img_regex_config)
+        imgEmailLogs = findViewById(R.id.img_email_logs)
 
         var alertBuilder = AlertDialog.Builder(this@MainActivity)
         var alertView: View = layoutInflater.inflate(R.layout.alert_regex_config, null)
@@ -79,8 +83,22 @@ class MainActivity : AppCompatActivity() {
 
         isReadingSms = preferences.getString("sender_phone", AppConstants.SMS.PHONE_EMPTY) != AppConstants.SMS.PHONE_EMPTY
 
+        imgEmailLogs.setOnClickListener { sendEmail() }
+
         reloadStatus()
 
+    }
+
+    private fun sendEmail() {
+        var logs: String = preferences.getString("logs", "Logs not found!")
+        val intent = Intent(Intent.ACTION_SENDTO)
+        intent.data = Uri.parse("mailto:") // only email apps should handle this
+        intent.putExtra(Intent.EXTRA_EMAIL, "soumya.deb@highradius.com")
+        intent.putExtra(Intent.EXTRA_SUBJECT,"LOGS: NightsWatch")
+        intent.putExtra(Intent.EXTRA_TEXT, logs)
+        //intent.type = "text/plain"
+
+        startActivity(intent)
     }
 
     private fun updateRegexConfig(regexPattern: String, canDetectAnyNum: Boolean) {
